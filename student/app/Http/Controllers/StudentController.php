@@ -5,16 +5,14 @@ namespace App\Http\Controllers;
 use App\Models\StudentModel;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 
 class StudentController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+
     public function index(Request $request)
     {
         $students = StudentModel::all();
-
         if ($request->wantsJson()){
             return response()->json([
                 'message'=>'List of Students',
@@ -24,72 +22,102 @@ class StudentController extends Controller
         return view("student", compact("students"));
     
     }
-
-
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
         //
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
+    //this handles both web and api
     public function store(Request $request)
     {
         try {
             $validated = $request->validate([
-                'student' => 'required|string',
+                                                //unique:table,column
+                'student' => 'required|string|unique:students,student',
                 'grade' => 'required|string',
                 'subject' => 'required|string',
             ]);
 
             $student = StudentModel::create($validated);
 
-            // return redirect()->route('student')->with('success', 'Student added!');
-            return response()->json([
-                'message'=> "student added successfully!",
-                'data' => $student
-            ]);
+            if ($request->wantsJson()){
+                return response()->json([
+                    'message'=> "student added successfully!",
+                    'data' => $student
+                ]);
+            }
+        
+            return redirect()->route('student')->with('success', 'Student added!');
+
+        } catch(ValidationException $e) {
+            if ($request->wantsJson()){
+                return response()->json([
+                    'message' => 'Validation Failed',
+                    'errors' => $e->errors()
+                ]);
+            }
+            return back()->withErrors($e->errors());
+
         } catch (Exception $e) {
-            return response()->json([
-                'message'=> "Something went wrong",
-                'error' => $e->getMessage()
-            ], 500);
+            if ($request->wantsJson()){
+                return response()->json([
+                    'message'=> "Something went wrong",
+                    'error' => $e->getMessage()
+                ], 500);
+            }
+            return back()->withErrors(['error' => 'Something went wrong: ' . $e->getMessage()]);
         }
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(StudentModel $studentModel)
+
+
+    public function show(Request $request, $id)
     {
-        //
+        try {
+            $student = StudentModel::findOrFail($id);
+            
+            if($request->wantsJson()) {
+                return response()->json([
+                    'message'=> 'student retrieved successfully',
+                    'data'=> $student
+                ]);
+            };
+            
+            return view('student', compact('student'));
+            
+        } catch (Exception $e) {
+            return response()->json([
+                "message" => "$id : Not registered",
+                "error" => $e->getMessage()
+            ]);
+        }
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(StudentModel $studentModel)
     {
         //
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, StudentModel $studentModel)
     {
         //
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(StudentModel $studentModel)
+    public function destroy($id)
     {
-        
+        $student = StudentModel::findOrFail($id);
+        $student->delete();
+
+        try {
+            return response()->json([
+            'message'=> "$id deleted",
+            'data' => $student
+        ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'message'=> "$id no record of this student id.",
+                'error' => $e->getMessage() 
+            ]);
+        }
     }
 }
