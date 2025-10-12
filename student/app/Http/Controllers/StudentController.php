@@ -24,7 +24,7 @@ class StudentController extends Controller
     }
     public function create()
     {
-        //
+        return view("student");
     }
 
     //this handles both web and api
@@ -103,21 +103,29 @@ class StudentController extends Controller
         //
     }
 
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
-        $student = StudentModel::findOrFail($id);
-        $student->delete();
-
         try {
-            return response()->json([
-            'message'=> "$id deleted",
-            'data' => $student
-        ]);
+            $student = StudentModel::findOrFail($id);
+            $student->delete();
+
+            if($request->wantsJson()){
+                return response()->json([
+                    'message'=> "$id deleted",
+                    'data' => $student
+                ]);
+            }
+            return redirect()->route('student')->with('success', "Student ID $id deleted successfully.");
+
         } catch (Exception $e) {
-            return response()->json([
-                'message'=> "$id no record of this student id.",
-                'error' => $e->getMessage() 
-            ]);
+            if ($request->wantsJson()) {
+                return response()->json([
+                    'message'=> "$id no record of this student id.",
+                    'error' => $e->getMessage() 
+                ]);
+            }
+            return back()->withErrors(['error' => "No record of student ID $id."]);
         }
+        
     }
 }

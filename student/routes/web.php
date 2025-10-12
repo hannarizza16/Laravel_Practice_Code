@@ -13,6 +13,14 @@ Route::get('/', function () {
 
 
 //get
-Route::get("/student", [StudentController::class, "index"]);
+Route::get("/student", [StudentController::class, "index"])->name('student');
 
-// Route::post("/student/create", [StudentController::class, "store"] );
+Route::post("/student/create", [StudentController::class, "store"])->name('student.create.store');
+
+Route::get("/student/addForm", [StudentController::class, "create"]);
+
+Route::delete("/student/{id}", [StudentController::class, "destroy"])->name('student.destroy');
+
+Route::get('/test-success', function () {
+    return redirect()->route('student')->with('success', 'Test message works!');
+});
