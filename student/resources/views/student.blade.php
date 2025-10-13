@@ -8,11 +8,23 @@
 
     @if ($success = Session::get('success'))
         <div class="alert alert-success alert-block">
-            <button type="button" class="close" data-dismiss="alert">×</button>	
+            <!-- <button type="button" class="close" data-dismiss="alert">×</button>	 -->
             <strong>{{ $success }}</strong>
         </div>
     @endif
 
+
+
+    @if ($errors->any()) 
+        <div class="alert alert-danger alert-block">
+            <ul>
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+    
     <div class="container">
         <h2 class="mb-4">Student Records</h2>
 
@@ -62,5 +74,18 @@
         </form>
     </div>
 
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- jQuery -->
+    <script>
+        $(document).ready(function() {
+            // fade out after 3 seconds
+            setTimeout(function() {
+                $(".alert-success, .alert-danger").fadeOut('slow');
+            }, 5000); // 3000ms = 3 seconds
+        });
+    </script>
+
+<!-- {"grade":["The grade field is required."],"subject":["The subject field is required."]} -->
 </body>
 </html>

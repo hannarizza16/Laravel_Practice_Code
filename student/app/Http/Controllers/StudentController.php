@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\StudentModel;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 class StudentController extends Controller
@@ -51,6 +52,10 @@ class StudentController extends Controller
 
         } catch(ValidationException $e) {
             if ($request->wantsJson()){
+
+                // $errors = collect($e->errors());
+                // Str::unwrap($errors, '{}');
+                
                 return response()->json([
                     'message' => 'Validation Failed',
                     'errors' => $e->errors()
@@ -115,7 +120,7 @@ class StudentController extends Controller
                     'data' => $student
                 ]);
             }
-            return redirect()->route('student')->with('success', "Student ID $id deleted successfully.");
+            return redirect()->route('student')->with('success', "Student ID $student->student deleted successfully.");
 
         } catch (Exception $e) {
             if ($request->wantsJson()) {
