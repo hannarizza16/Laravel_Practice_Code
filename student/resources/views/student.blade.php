@@ -48,14 +48,25 @@
                     <td>{{ $student->subject }}</td>
                     <td>{{ $student->email }}</td>
                     <td>
-                        <form action="{{ route("student.destroy", $student->id) }}" method="POST">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn btn-danger btn-sm" 
-                                onclick='return confirm("Are you sure you want to delete {{$student->student}}")'> 
-                                Delete 
-                            </button>
-                        </form>
+                        <div class="d-flex align-items-stretch">
+                            <form action="{{ route("student.destroy", $student->id) }}" method="POST">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-danger btn-sm" 
+                                    onclick='return confirm("Are you sure you want to delete {{$student->student}}")'> 
+                                    Delete 
+                                </button>
+                            </form>
+                            <form action="{{ route("student.edit", $student->id) }}" method="POST">
+                                @csrf
+                                @method('PUT')
+                                @yield('editModal')
+                                <button type="submit" class="edit btn btn-primary btn-sm" data-toggle="modal"> 
+                                    Edit 
+                                </button>
+                            </form>
+                        </div>
+                        
                     </td>
                 </tr>
                 @endforeach

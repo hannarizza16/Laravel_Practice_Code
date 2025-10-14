@@ -14,4 +14,5 @@ Route::get("/student", [StudentController::class, "index"]);
 Route::get("/student/{id}", [StudentController::class, "show"]);
 Route::post("/student/create", [StudentController::class, "store"]);
 Route::delete("/student/{id}", [StudentController::class, "destroy"]);
+Route::put("/student/{id}", [StudentController::class, "update"]);
 // Route::apiResource("/student", StudentController::class);
