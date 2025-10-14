@@ -13,14 +13,13 @@ class StudentController extends Controller
 
     public function index(Request $request)
     {
-        $students = StudentModel::orderBy('id', 'asc')->get();
+        $students = StudentModel::all();
         if ($request->wantsJson()){
             return response()->json([
                 'message'=>'List of Students',
                 'data'=> $students
             ]);
-        }                               //compact  - is like "students" => "students"
-        // this passes to blade 
+        }
         return view("student", compact("students"));
     
     }
@@ -29,17 +28,18 @@ class StudentController extends Controller
         return view("student");
     }
 
+    //this handles both web and api
     public function store(Request $request)
     {
         try {
-            // validate
+
             $validated = $request->validate([
                 'student' => [
                         'required',
                         'string',
                         function ($attribute, $value, $fail) {
                             $formatted = preg_replace('/\s+/', ' ', ucwords(strtolower($value)));
-                            if (StudentModel::where('student', $formatted)->exists()) {
+                            if (\App\Models\StudentModel::where('student', $formatted)->exists()) {
                                 $fail("The {$attribute} name has already been taken."); // The student name has already been taken
                             }
                         },
@@ -49,6 +49,7 @@ class StudentController extends Controller
                                             //unique:table,column
                 'email' => 'required|email|unique:students,email'
             ]);
+
             
             $student = StudentModel::create($validated);
 
@@ -83,6 +84,8 @@ class StudentController extends Controller
         }
     }
 
+
+
     public function show(Request $request, $id)
     {
         try {
@@ -105,64 +108,14 @@ class StudentController extends Controller
         }
     }
 
-    public function edit($id)
+    public function edit(StudentModel $studentModel)
     {
-        $students = StudentModel::findOrFail($id);
-
-        return view("student", compact("students"));
+        //
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, StudentModel $studentModel)
     {
-        try {
-            $validated = $request->validate([
-                "student" => "required|string|unique:students,student",
-                "grade" => "required|string",
-                "subject" => "required|string",
-                "email" => "required|email|unique:students,email"
-            ]);
-
-             //find id
-            $student = StudentModel::findOrFail($id);
-
-            //check if record exist 
-            if(!$student){
-                return response()->json([
-                    'message'=> 'Student not found'
-                ],404);
-            }
-
-            // else update
-            $student->update($validated);
-
-            if($request->wantsJson()){
-                return response()->json([
-                    'message' => "$student->student updated successfuly",
-                    "data" => $student
-                ]);
-            }
-
-            return redirect()->route('student')->with("success", "$student->student updated successfuly"); 
         
-        } catch (ValidationException $e) {
-            if($request->wantsJson()){
-                return response()->json([
-                    'message'=> "Validation Failed. we cant update this student",
-                    'errors' => $e->errors()
-                ]);
-            }
-
-            return back()->withErrors(['errors' => 'Something went wrong' . $e->getMessage()]);
-        } catch (Exception $e) {
-            if($request->wantsJson()) {
-                return response()->json([
-                    'message' => 'Something went wrong',
-                    'error' => $e->getMessage()
-                ]); 
-            }
-            return back()->withErrors(['error'=> $e->getMessage()]);
-
-        }
     }
 
     public function destroy(Request $request, $id)
