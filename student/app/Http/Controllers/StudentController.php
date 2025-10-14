@@ -32,13 +32,25 @@ class StudentController extends Controller
     public function store(Request $request)
     {
         try {
+
             $validated = $request->validate([
-                                                //unique:table,column
-                'student' => 'required|string|unique:students,student',
+                'student' => [
+                        'required',
+                        'string',
+                        function ($attribute, $value, $fail) {
+                            $formatted = preg_replace('/\s+/', ' ', ucwords(strtolower($value)));
+                            if (\App\Models\StudentModel::where('student', $formatted)->exists()) {
+                                $fail("The {$attribute} name has already been taken."); // The student name has already been taken
+                            }
+                        },
+                    ],
                 'grade' => 'required|string',
                 'subject' => 'required|string',
+                                            //unique:table,column
+                'email' => 'required|email|unique:students,email'
             ]);
 
+            
             $student = StudentModel::create($validated);
 
             if ($request->wantsJson()){
@@ -50,12 +62,10 @@ class StudentController extends Controller
         
             return redirect()->route('student')->with('success', 'Student added!');
 
+
+            // catches errors for validation 
         } catch(ValidationException $e) {
             if ($request->wantsJson()){
-
-                // $errors = collect($e->errors());
-                // Str::unwrap($errors, '{}');
-                
                 return response()->json([
                     'message' => 'Validation Failed',
                     'errors' => $e->errors()
@@ -105,7 +115,7 @@ class StudentController extends Controller
 
     public function update(Request $request, StudentModel $studentModel)
     {
-        //
+        
     }
 
     public function destroy(Request $request, $id)

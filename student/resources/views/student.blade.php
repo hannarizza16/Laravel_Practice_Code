@@ -35,6 +35,7 @@
                     <th>Student Name</th>
                     <th>Grade</th>
                     <th>Subject</th>
+                    <th>Email</th>
                     <th>Action</th>
                 </tr>
             </thead>
@@ -45,6 +46,7 @@
                     <td>{{ $student->student }}</td>
                     <td>{{ $student->grade }}</td>
                     <td>{{ $student->subject }}</td>
+                    <td>{{ $student->email }}</td>
                     <td>
                         <form action="{{ route("student.destroy", $student->id) }}" method="POST">
                             @csrf
@@ -69,9 +71,17 @@
             <input type="text" name="student" placeholder="Name">
             <input type="text" name="grade" placeholder="Grade">
             <input type="text" name="subject" placeholder="Subject">
+            <input type="email" name="email" placeholder="Student Email">
+
             <button type="submit">Add</button>
-            
         </form>
+    </div>
+
+    <div>
+        @foreach ($students as $student ) 
+            <br>{{ $student->student }}
+        @endforeach
+
     </div>
 
 

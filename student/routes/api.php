@@ -9,8 +9,9 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 
-//get
+// get
 Route::get("/student", [StudentController::class, "index"]);
 Route::get("/student/{id}", [StudentController::class, "show"]);
 Route::post("/student/create", [StudentController::class, "store"]);
 Route::delete("/student/{id}", [StudentController::class, "destroy"]);
+// Route::apiResource("/student", StudentController::class);
