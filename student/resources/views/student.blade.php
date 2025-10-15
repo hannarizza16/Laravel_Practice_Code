@@ -1,30 +1,35 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Students List</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
 </head>
+
 <body class="p-4">
+     
 
     @if ($success = Session::get('success'))
-        <div class="alert alert-success alert-block">
-            <!-- <button type="button" class="close" data-dismiss="alert">×</button>	 -->
-            <strong>{{ $success }}</strong>
-        </div>
+    <div class="alert alert-success alert-block">
+        <!-- <button type="button" class="close" data-dismiss="alert">×</button>	 -->
+        <strong>{{ $success }}</strong>
+    </div>
     @endif
 
 
 
-    @if ($errors->any()) 
-        <div class="alert alert-danger alert-block">
-            <ul>
-                @foreach($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
+    @if ($errors->any())
+    <div class="alert alert-danger alert-block">
+        <ul>
+            @foreach($errors->all() as $error)
+            <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
     @endif
-    
+
     <div class="container">
         <h2 class="mb-4">Student Records</h2>
 
@@ -40,6 +45,13 @@
                 </tr>
             </thead>
             <tbody>
+                @if ($students->isEmpty())
+                <tr>
+                    <td colspan="6" class="text-center text-muted">
+                        No student Record Found.
+                    </td>
+                </tr>
+                @else
                 @foreach ($students as $student)
                 <tr>
                     <td>{{ $student->id }}</td>
@@ -47,46 +59,49 @@
                     <td>{{ $student->grade }}</td>
                     <td>{{ $student->subject }}</td>
                     <td>{{ $student->email }}</td>
-                    <td>
+                    <td class="d-flex">
+                        <button
+                            class="btn btn-sm btn-primary "
+                            data-bs-toggle="modal"
+                            data-bs-target="#editModal{{ $student->id }}">
+                            Edit
+                        </button>
                         <form action="{{ route("student.destroy", $student->id) }}" method="POST">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="btn btn-danger btn-sm" 
-                                onclick='return confirm("Are you sure you want to delete {{$student->student}}")'> 
-                                Delete 
+                            <button type="submit" class="btn btn-danger btn-sm"
+                                onclick='return confirm("Are you sure you want to delete {{$student->student}}")'>
+                                Delete
                             </button>
                         </form>
                     </td>
                 </tr>
+                @include('edit',  ['student' => $student])
                 @endforeach
+                @endif
             </tbody>
         </table>
-    </div>
+ 
 
     <div class="container">
         <h2> Add new student grade</h2>
 
         <form action="{{ route('student.create.store') }}" method="POST">
-            @csrf 
-            <input type="text" name="student" placeholder="Name">
-            <input type="text" name="grade" placeholder="Grade">
-            <input type="text" name="subject" placeholder="Subject">
-            <input type="email" name="email" placeholder="Student Email">
+            @csrf
+            <input type="text" name="student" placeholder="Name" value="{{ old('student') }}">
+            <input type="text" name="grade" placeholder="Grade" value="{{ old('grade')  }}">
+            <input type="text" name="subject" placeholder="Subject" value="{{ old('subject') }}">
+            <input type="email" name="email" placeholder="Student Email" value="{{ old('email') }}">
 
             <button type="submit">Add</button>
         </form>
     </div>
 
-    <div>
-        @foreach ($students as $student ) 
-            <br>{{ $student->student }}
-        @endforeach
-
-    </div>
 
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<!-- jQuery -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- jQuery -->
     <script>
         $(document).ready(function() {
             // fade out after 3 seconds
@@ -96,6 +111,7 @@
         });
     </script>
 
-<!-- {"grade":["The grade field is required."],"subject":["The subject field is required."]} -->
+    <!-- {"grade":["The grade field is required."],"subject":["The subject field is required."]} -->
 </body>
+
 </html>
